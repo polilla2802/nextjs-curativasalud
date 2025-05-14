@@ -9,14 +9,35 @@ datasource db {
 }
 
 model user {
-  id          BigInt    @id @default(autoincrement())
-  memberId    BigInt    @unique
-  name        String    @db.String(255)
-  email       String?   @db.String(255)
+  id          BigInt     @id @default(autoincrement())
+  memberId    BigInt     @unique
+  membership  Membership @relation(fields: [memberId], references: [id])
+  name        String     @db.String(255)
+  email       String?    @db.String(255)
   birthday    DateTime?
-  state       String    @db.String(255)
-  city        String?   @db.String(255)
-  supabaseUid String?   @unique @db.String(255)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  state       String     @db.String(255)
+  city        String?    @db.String(255)
+  supabaseUid String?    @unique @db.String(255)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Membership {
+  id            BigInt    @id
+  users         user[]
+  type          String?   @db.String(255)
+  membershipUrl String    @db.String(1024)
+  authCode      String    @db.String(1024)
+  documentId    BigInt?   @unique
+  document      Document? @relation(fields: [documentId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Document {
+  id          BigInt      @id @default(autoincrement())
+  documentUrl String      @db.String(1024)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  Membership  Membership?
 }
