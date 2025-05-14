@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./node_modules/@prisma/client"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id          BigInt    @id @default(autoincrement())
+  memberId    BigInt    @unique
+  name        String    @db.String(255)
+  email       String?   @db.String(255)
+  birthday    DateTime?
+  state       String    @db.String(255)
+  city        String?   @db.String(255)
+  supabaseUid String?   @unique @db.String(255)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
