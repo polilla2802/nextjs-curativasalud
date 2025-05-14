@@ -44,3 +44,7 @@ next-env.d.ts
 .vscode/
 .vscode/launch.json
 launch.json
+
+# prisma
+.prisma/
+/prisma/node_modules

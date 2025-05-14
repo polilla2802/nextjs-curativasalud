@@ -23,7 +23,7 @@ export default function UploadPage() {
     const filePath = `${folderPath}${Date.now()}-${file.name}`;
 
     const { data, error } = await supabase.storage
-      .from('curativa-salud.dev')
+      .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET_NAME)
       .upload(filePath, file);
 
     if (error) {
