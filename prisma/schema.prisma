@@ -16,6 +16,7 @@ model user {
   email       String?    @db.String(255)
   birthday    DateTime?
   state       String     @db.String(255)
+  district    String     @db.String(255)
   city        String?    @db.String(255)
   supabaseUid String?    @unique @db.String(255)
   createdAt   DateTime   @default(now())
