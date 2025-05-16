@@ -1,4 +1,16 @@
 @import "tailwindcss";
+@import "tailwindcss/utilities";
+
+@tailwind utilities;
+
+:root {
+  --card-gray: #D8D8D8;
+}
+
+/* Example custom class using your theme color */
+.bg-custom-card {
+  background-color: var(--card-gray);
+}
 
 body {
   background:#e2b66d;

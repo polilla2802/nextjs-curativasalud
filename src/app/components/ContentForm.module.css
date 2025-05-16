@@ -1,0 +1,69 @@
+.membership p{
+  	font-family: "Public Sans", Sans-serif;
+	font-size: 1rem;
+	padding-top: 15px;
+}
+
+.socio p{
+ 	font-family: "Public Sans", Sans-serif;
+	font-size: 1rem;
+}
+
+.membership table{
+	height: 400px;
+	width: 100%;
+}
+
+.tableHeight table{
+	height: 400px!important;
+      }
+
+@media only screen and (max-width: 1280px) {
+	.membership table{
+		height: 300px;
+	}
+}
+
+
+@media only screen and (max-width: 1024px) {
+	.membership table{
+		height: 400px;
+	}
+
+	.membership p{
+		font-size: 1rem;
+		padding-top: 20px;
+	}
+
+	.socio p{
+		font-size: 1rem;
+	}
+}
+
+@media only screen and (max-width: 768px) {
+	.membership table{
+		height: 350px;
+	}
+
+	.membership p{
+		font-size: 0.8rem;
+	}
+
+	.socio p{
+		font-size: 0.8rem;
+	}
+}
+
+@media only screen and (max-width: 600px) {
+	.membership{
+		padding:10px;
+	}
+
+	.membership table{
+		height: 260px;
+	}
+
+	.membership p{
+		padding-top: 10px;
+	}
+}
