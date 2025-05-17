@@ -1,7 +1,6 @@
 // File: components/ContentForm.js
 "use client";
 import styles from "./ContentForm.module.css";
-import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import estadosMexico from "@/utils/estados";
@@ -172,18 +171,18 @@ export default function ContentForm() {
         <div className="w-full p-2 mx-auto mb-10 bg-white rounded-lg shadow-2xl lg:w-4/5">
           <div className="w-full bg-white">
             <div className="px-8 pt-6 pb-8 mb-4 bg-white">
-              <label htmlFor="profileUpload" className="block mt-4 mb-2 text-sm font-bold text-primaryBlue">
+              <label htmlFor="profileUpload" className="block mt-4 mb-2 text-sm font-bold">
                 FOTO DE PERFIL:
               </label>
               <input id="profileUpload" type="file" accept="image/*" onChange={handleProfileImageUpload} className="w-full" required />
 
-              <label htmlFor="NOMBRE" className="block mb-2 text-sm font-bold text-primaryBlue">
-                NOMBRE:<span className="font-light text-red-700"> *</span>
+              <label htmlFor="NOMBRE" className="block mb-2 text-sm font-bold">
+                NOMBRE:<span className="font-light"> *</span>
               </label>
               <input name="NOMBRE" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
 
-              <label htmlFor="ESTADO" className="block mt-2 mb-2 text-sm font-bold text-primaryBlue">
-                ESTADO:<span className="font-light text-red-700"> *</span>
+              <label htmlFor="ESTADO" className="block mt-2 mb-2 text-sm font-bold">
+                ESTADO:<span className="font-light"> *</span>
               </label>
               <select id="ESTADO" name="ESTADO" value={formData.ESTADO} onChange={handleChange} className="w-full px-3 py-2 border shadow appearance-none" required>
                 <option value="">Selecciona un estado</option>
@@ -192,13 +191,13 @@ export default function ContentForm() {
                 ))}
               </select>
 
-              <label htmlFor="MUNICIPIO" className="block mt-2 mb-2 text-sm font-bold text-primaryBlue">
-                MUNICIPIO:<span className="font-light text-red-700"> *</span>
+              <label htmlFor="MUNICIPIO" className="block mt-2 mb-2 text-sm font-bold">
+                MUNICIPIO:<span className="font-light "> *</span>
               </label>
               <input name="MUNICIPIO" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
 
-              <label htmlFor="pdfUpload" className="block mt-4 mb-2 text-sm font-bold text-primaryBlue">
-                DOCUMENTO (PDF):<span className="font-light text-red-700"> *</span>
+              <label htmlFor="pdfUpload" className="block mt-4 mb-2 text-sm font-bold">
+                DOCUMENTO (PDF):<span className="font-light "> *</span>
               </label>
               <input
                 id="pdfUpload"
@@ -210,8 +209,8 @@ export default function ContentForm() {
               />
 
 
-              <label htmlFor="AUTORIZACION" className="block mt-2 mb-2 text-sm font-bold text-primaryBlue">
-                AUTORIZACIÓN:<span className="font-light text-red-700"> *</span>
+              <label htmlFor="AUTORIZACION" className="block mt-2 mb-2 text-sm font-bold">
+                AUTORIZACIÓN:<span className="font-light "> *</span>
               </label>
               <input name="AUTORIZACION" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
             </div>
@@ -239,13 +238,13 @@ export default function ContentForm() {
                             const baseName = fileName.replace(".pdf", "");
                             const shortName = baseName.slice(-30) + ".pdf";
                             return (
-                              <a href={formData.PDF} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                              <a href={formData.PDF} target="_blank" rel="noopener noreferrer" className="underline ">
                                 {shortName}
                               </a>
                             );
                           })()
                         ) : (
-                          <span className="text-gray-500">No disponible</span>
+                          <span className="">No disponible</span>
                         )}
                       </p>
                       <p className="py-0 my-0 leading-4 text-left"><span className="font-bold">Fecha Creada: </span>{getCurrentDate()}</p>
@@ -255,8 +254,8 @@ export default function ContentForm() {
                     <div className="flex justify-around gap-5 pt-2">
                       <img className="w-1/6" src="/images/MORADO_LOGO.png" alt="CUSACAN" />
                       <div className="flex flex-col justify-around w-5/6 bg-white">
-                      <img className="w-full" src="/images/BARCODE.jpg" />
-                      <p style={{padding:0}} className="text-xs text-center">Curativa Salud Cannabis</p>
+                        <img className="w-full" src="/images/BARCODE.jpg" />
+                        <p style={{ padding: 0 }} className="text-xs text-center">Curativa Salud Cannabis</p>
                       </div>
                     </div>
                     <p className="text-base text-center font-base">WWW.CURATIVASALUDCANNABIS.ORG</p>
@@ -264,7 +263,7 @@ export default function ContentForm() {
                   <td className={`${styles.socio} flex flex-col items-center justify-around pb-5 pr-8 pt-6 pl-5 w-1/3`}>
                     <div className="flex flex-col items-center">
                       {loadingProfileImage ? (
-                        <p className="text-sm text-gray-500">Cargando imagen...</p>
+                        <p className="text-sm ">Cargando imagen...</p>
                       ) : (
                         <img className="w-full rounded-2xl" src={profileImageURL} alt="Perfil" />
                       )}
@@ -280,12 +279,12 @@ export default function ContentForm() {
           <div className="flex flex-col items-center mt-6">
             <div className="flex flex-col justify-center w-full mb-4">
               {!uploadSuccess && (
-                <>{loadingMembership ? <p className="text-sm text-center text-gray-500">Generando membresía...</p> : <button type="submit" className="block px-4 py-2 m-auto text-xs tracking-widest text-center text-white uppercase bg-black shadow cursor-pointer whitespace-nowrap font-formaBold w-min md:text-sm">Generar PDF</button>}</>
+                <>{loadingMembership ? <p className="text-sm text-center">Generando membresía...</p> : <button type="submit" className="block px-4 py-2 m-auto text-xs tracking-widest text-center uppercase shadow cursor-pointer whitespace-nowrap font-formaBold w-min md:text-sm bg-black text-white">Generar PDF</button>}</>
               )}
               {uploadSuccess && (
                 <>
                   <p className="text-center">Membresía creada correctamente!</p>
-                  <a href={downloadURL} target="_blank" rel="noopener noreferrer" className="w-full text-center text-blue-600 underline break-all">Descarga tu membresía</a>
+                  <a href={downloadURL} target="_blank" rel="noopener noreferrer" className="w-full text-center underline break-all">Descarga tu membresía</a>
                 </>
               )}
             </div>

@@ -9,6 +9,10 @@
 	font-size: 1rem;
 }
 
+.socio button{
+	color:white;
+}
+
 .formMembership label {
 	margin-top: 10px;
 }
