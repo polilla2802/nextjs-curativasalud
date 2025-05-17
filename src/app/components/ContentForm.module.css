@@ -9,6 +9,10 @@
 	font-size: 1rem;
 }
 
+.formMembership label {
+	margin-top: 10px;
+}
+
 .membership table{
 	height: 400px;
 	width: 100%;

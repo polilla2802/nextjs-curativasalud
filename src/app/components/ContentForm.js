@@ -14,11 +14,12 @@ export default function ContentForm() {
     NOMBRE: "",
     ESTADO: "",
     MUNICIPIO: "",
-    CUMPLEAÑOS: "",
+    AUTORIZACION: "",
     SOCIOCODE: "",
   });
   const [downloadURL, setDownloadURL] = useState("");
   const [socioCode, setSocioCode] = useState("");
+  const [loadingMembership, setLoadingMembership] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -55,14 +56,20 @@ export default function ContentForm() {
               upsert: false,
             });
 
-          if (error) throw error;
+          if (error) {
+            setLoadingMembership(false);
+            throw (error);
+          }
 
           const { data: urlData } = supabase
             .storage
             .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET_NAME)
             .getPublicUrl(`membership/${filename}`);
 
-          if (!urlData || !urlData.publicUrl) throw new Error("Failed to retrieve public URL");
+          if (!urlData || !urlData.publicUrl) {
+            setLoadingMembership(false);
+            throw new Error("Failed to retrieve public URL");
+          }
 
           setDownloadURL(urlData.publicUrl);
           setUploadSuccess(true);
@@ -71,6 +78,7 @@ export default function ContentForm() {
         }
       }, 'image/png', 0.98);
     } catch (error) {
+      setLoadingMembership(false);
       console.log("Error:", error);
     }
   };
@@ -102,6 +110,7 @@ export default function ContentForm() {
   };
 
   const handleSubmit = async (e) => {
+    setLoadingMembership(true);
     e.preventDefault();
 
     data.formData = formData;
@@ -116,7 +125,7 @@ export default function ContentForm() {
   if (!isMounted) return null;
 
   return (
-    <form onSubmit={handleSubmit} ref={form}>
+    <form className={`${styles.formMembership}`} onSubmit={handleSubmit} ref={form}>
       <div className="grid-cols-2 mt-10 lg:grid justify-items-center">
         <div className="w-full p-2 mx-auto mb-10 bg-white rounded-lg shadow-2xl lg:w-4/5">
           <div className="w-full bg-white">
@@ -139,7 +148,7 @@ export default function ContentForm() {
                 />
               </>
               <>
-                <label htmlFor="ESTADO" className="block my-2 text-sm font-bold text-primaryBlue">
+                <label htmlFor="ESTADO" className="block mb-2 text-sm font-bold text-primaryBlue">
                   ESTADO:
                   <i className="font-light">
                     <span className="text-red-700"> *</span>
@@ -179,18 +188,20 @@ export default function ContentForm() {
                 />
               </>
               <>
-                <label htmlFor="CUMPLEAÑOS" className="block my-2 text-sm font-bold text-primaryBlue">
-                  CUMPLEAÑOS:
+                <label htmlFor="AUTORIZACION" className="block mb-2 text-sm font-bold text-primaryBlue">
+                  AUTORIZACIÓN:
                   <i className="font-light">
                     <span className="text-red-700"> *</span>
                   </i>
                 </label>
                 <input
-                  name="CUMPLEAÑOS"
-                  type="date"
+                  name="AUTORIZACION"
+                  type="text"
                   onChange={handleChange}
+                  maxLength={18}
                   className="w-full px-3 py-2 border shadow appearance-none"
                   required
+                  autoFocus
                 />
               </>
             </div>
@@ -207,32 +218,34 @@ export default function ContentForm() {
                       <img src="/images/Logo-CUSACAN-HEADER.png" alt="CUSACAN" className="w-full" />
                       <div>
                         <p className="py-0 my-0 leading-4 text-left">
-                          <span className="font-bold">Nombre: </span>
-                          {formData.NOMBRE !== "" ? formData.NOMBRE : ""}
+                          <span className="font-bold ">Nombre: </span>
+                          <span className="capitalize">{formData.NOMBRE !== "" ? formData.NOMBRE : ""}</span>
                         </p>
                         <p className="py-0 my-0 leading-4 text-left">
-                          <span className="font-bold">Estado: </span>
-                          {formData.ESTADO !== "" ? formData.ESTADO : ""}
+                          <span className="font-bold ">Estado: </span>
+                          <span className="capitalize">{formData.ESTADO !== "" ? formData.ESTADO : ""}</span>
                         </p>
                         <p className="py-0 my-0 leading-4 text-left">
-                          <span className="font-bold">Municipio: </span>
-                          {formData.MUNICIPIO !== "" ? formData.MUNICIPIO : ""}
+                          <span className="font-bold ">Municipio: </span>
+                          <span className="capitalize">{formData.MUNICIPIO !== "" ? formData.MUNICIPIO : ""}</span>
                         </p>
                         <p className="py-0 my-0 leading-4 text-left">
                           <span className="font-bold">Documento: </span>
-                          XXXXXX-XXXXXX-XXXX
+
                         </p>
                         <p className="py-0 my-0 leading-4 text-left">
                           <span className="font-bold">Fecha Creada: </span>
                           {getCurrentDate()}
                         </p>
-                        <p className="py-0 my-0 leading-4 text-left">
+                        <p className="py-0 my-0 leading-4 text-left whitespace-nowrap ">
                           <span className="font-bold">Autorización: </span>
-                          COFEPRIS-CAS-{socioCode}
+                          <span className="text-sm uppercase md:text-base">
+                            {formData.AUTORIZACION !== "" ? formData.AUTORIZACION : ""}
+                          </span>
                         </p>
                       </div>
-                      <h1 className="text-2xl font-bold text-right">#PRESERVANDORAICES</h1>
-                      <p className="text-base text-right font-base">WWW.CURATIVASALUDCANNABIS.ORG</p>
+                      <h1 className="pt-5 text-lg font-bold text-center md:text-xl">#PRESERVANDORAICES</h1>
+                      <p className="text-base text-center font-base">WWW.CURATIVASALUDCANNABIS.ORG</p>
                     </td>
                     <td className={`${styles.socio} flex flex-col items-center justify-around pb-5 pr-8 pt-6 pl-5 w-1/3`}>
                       <div className="flex flex-col items-center">
@@ -252,29 +265,36 @@ export default function ContentForm() {
             Esta representación es lo mas cercano posible a la tarjeta final
           </p>
           <div className="flex flex-col items-center mt-6">
-            <div className="w-full mb-4">
-            {!uploadSuccess && (
-              <button
-                type="submit"
-                className="block px-4 py-2 m-auto text-xs tracking-widest text-center text-white uppercase bg-black shadow cursor-pointer whitespace-nowrap font-formaBold w-min md:text-sm"
-              >
-                Generar PDF
-              </button>
-            )}
-            {uploadSuccess && (
-              <>
-                <p className="text-center">Membresía creada correctamente!</p>
-                <a
-                  href={downloadURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full text-center text-blue-600 underline break-all"
-                >
-                  Descarga tu membresía
-                </a>
-              </>
-            )}
-          </div>
+            <div className="flex flex-col justify-center w-full mb-4">
+              {!uploadSuccess && (
+                <>
+                  {loadingMembership ? (
+                    <p className="text-sm text-center text-gray-500">Generando membresía...</p>
+                  ) : (
+                    <button
+                      type="submit"
+                      className="block px-4 py-2 m-auto text-xs tracking-widest text-center text-white uppercase bg-black shadow cursor-pointer whitespace-nowrap font-formaBold w-min md:text-sm"
+                    >
+                      Generar PDF
+                    </button>
+                  )}
+                </>
+              )}
+
+              {uploadSuccess && (
+                <>
+                  <p className="text-center">Membresía creada correctamente!</p>
+                  <a
+                    href={downloadURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full text-center text-blue-600 underline break-all"
+                  >
+                    Descarga tu membresía
+                  </a>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
