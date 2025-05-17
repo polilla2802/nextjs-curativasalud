@@ -1,7 +1,6 @@
 // File: components/ContentForm.js
 "use client";
 import styles from "./ContentForm.module.css";
-import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import estadosMexico from "@/utils/estados";
