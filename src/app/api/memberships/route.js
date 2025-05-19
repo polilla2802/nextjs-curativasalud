@@ -30,9 +30,17 @@ export async function GET(request) {
 
 export async function POST(request) {
   const data = await request.formData();
+  const membershipIdValue = data.get('membershipId');
   const membershipUrlValue = data.get('membershipUrl');
   const documentUrlValue = data.get('documentUrl');
   const authCodeValue = data.get('authCode');
+
+  if (!membershipIdValue) {
+    return NextResponse.json(
+      { message: "membershipIdValue not provided" },
+      { status: 500 }
+    );
+  }
 
   if (!membershipUrlValue) {
     return NextResponse.json(
@@ -48,13 +56,14 @@ export async function POST(request) {
     );
   }
 
-    if (!authCodeValue) {
+  if (!authCodeValue) {
     return NextResponse.json(
       { message: "authCodeValue not provided" },
       { status: 500 }
     );
   }
 
+  const membershipId = parseInt(membershipIdValue);
   const membershipUrl = membershipUrlValue;
   const documentUrl = documentUrlValue;
   const authCode = authCodeValue;
@@ -64,8 +73,23 @@ export async function POST(request) {
   console.log(authCode);
   try {
 
+    // Check if email or username already exist
+    const existingMembership = await prisma.membership.findFirst({
+      where: {
+        id: membershipId
+      },
+    });
+
+    if (existingMembership) {
+      return NextResponse.json(
+        { message: "membership with the same membershipId already exists" },
+        { status: 500 }
+      );
+    }
+
     const membershipValue = await prisma.membership.create({
       data: {
+        id: membershipId,
         membershipUrl: membershipUrl,
         documentUrl: documentUrl,
         authCode: authCode,

@@ -18,8 +18,10 @@ export default function ContentForm() {
     membershipUrl: "",
     documentUrl: "",
     authCode: "",
+    socioCode: "",
   });
   const [downloadURL, setDownloadURL] = useState("");
+  const [socioCode, setSocioCode] = useState("");
   const [profileImageURL, setProfileImageURL] = useState("/images/PROFILE.png");
   const [loadingProfileImage, setLoadingProfileImage] = useState(false);
   const [loadingMembership, setLoadingMembership] = useState(false);
@@ -29,6 +31,16 @@ export default function ContentForm() {
 
   const tableRef = useRef();
   const form = useRef(null);
+
+
+  const generateSocioCode = () => {
+    const code = Math.floor(Math.random() * 10 ** 13).toString().padStart(13, '0');
+    setSocioCode(code);
+    setFormData({
+      ...formData,
+      socioCode: code,
+    });
+  };
 
   const handleProfileImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -142,6 +154,7 @@ export default function ContentForm() {
   const createMembership = async (formData, membershipUrl) => {
     try {
       const membershipData = new FormData();
+      membershipData.append("membershipId", socioCode);
       membershipData.append("membershipUrl", membershipUrl);
       membershipData.append("documentUrl", formData.documentUrl);
       membershipData.append("authCode", formData.authCode);
@@ -160,6 +173,10 @@ export default function ContentForm() {
       const membershipResponse = await response.json();
       if (membershipResponse) {
         console.log("Membership created:", membershipResponse);
+        setFormData((prev) => ({
+          ...prev,
+          membershipId: membershipResponse.membership.id,
+        }));
         await createUser(formData, membershipResponse);
       }
     } catch (error) {
@@ -213,6 +230,7 @@ export default function ContentForm() {
 
   useEffect(() => {
     setIsMounted(true);
+    generateSocioCode();
   }, []);
 
   if (!isMounted) return null;
@@ -306,9 +324,16 @@ export default function ContentForm() {
                     <h1 className="pt-2 text-xs font-bold text-center md:pt-5 md:text-xl">#PRESERVANDORAICES</h1>
                     <div className="flex justify-around gap-5 pt-2">
                       <img className="w-1/6" src="/images/MORADO_LOGO.png" alt="CUSACAN" />
-                      <div className="flex flex-col w-5/6 bg-white">
-                        <img className="w-full" src="/images/BARCODE.jpg" />
-                        <p style={{ padding: 0 }} className="text-xs text-center">Curativa Salud Cannabis</p>
+                      <div className="flex flex-col justify-end w-5/6 bg-white">
+                        {formData.socioCode ? (
+                          <img
+                            className="w-full"
+                            src={`https://barcodeapi.org/api/codabar/${formData.socioCode}?height=15`}
+                            alt="Membership Barcode"
+                          />
+                        ) : (
+                          <p className="p-0 text-center">Curativa Salud Cannabis</p>
+                        )}
                       </div>
                     </div>
                     <span className={`${styles.membership}`}>WWW.CURATIVASALUDCANNABIS.ORG</span>
