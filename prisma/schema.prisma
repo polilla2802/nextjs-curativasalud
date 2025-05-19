@@ -22,7 +22,7 @@ model user {
 }
 
 model Membership {
-  id            BigInt   @id
+  id            BigInt   @id @default(autoincrement())
   users         user[]
   membershipUrl String   @db.String(1024)
   documentUrl   String   @db.String(1024)
