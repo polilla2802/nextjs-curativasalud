@@ -14,29 +14,18 @@ export default function ContentForm() {
     ESTADO: "",
     MUNICIPIO: "",
     AUTORIZACION: "",
-    SOCIOCODE: "",
     PROFPIC: "",
     PDF: "",
   });
   const [downloadURL, setDownloadURL] = useState("");
   const [profileImageURL, setProfileImageURL] = useState("/images/PROFILE.png");
   const [loadingProfileImage, setLoadingProfileImage] = useState(false);
-  const [socioCode, setSocioCode] = useState("");
   const [loadingMembership, setLoadingMembership] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   const tableRef = useRef();
   const form = useRef(null);
-
-  const generateSocioCode = () => {
-    const code = Math.floor(Math.random() * 10 ** 13).toString().padStart(13, '0');
-    setSocioCode(code);
-    setFormData(prev => ({
-      ...prev,
-      SOCIOCODE: code,
-    }));
-  };
 
   const handleProfileImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -160,7 +149,6 @@ export default function ContentForm() {
 
   useEffect(() => {
     setIsMounted(true);
-    generateSocioCode();
   }, []);
 
   if (!isMounted) return null;
@@ -172,17 +160,17 @@ export default function ContentForm() {
           <div className="w-full bg-white">
             <div className="px-8 pt-6 pb-8 mb-4 bg-white">
               <label htmlFor="profileUpload" className="block mt-4 mb-2 text-sm font-bold">
-                FOTO DE PERFIL:
+                FOTO DE PERFIL:<span className="font-light text-red-500"> *</span>
               </label>
               <input id="profileUpload" type="file" accept="image/*" onChange={handleProfileImageUpload} className="w-full" required />
 
               <label htmlFor="NOMBRE" className="block mb-2 text-sm font-bold">
-                NOMBRE:<span className="font-light"> *</span>
+                NOMBRE:<span className="font-light text-red-500"> *</span>
               </label>
               <input name="NOMBRE" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
 
               <label htmlFor="ESTADO" className="block mt-2 mb-2 text-sm font-bold">
-                ESTADO:<span className="font-light"> *</span>
+                ESTADO:<span className="font-light text-red-500"> *</span>
               </label>
               <select id="ESTADO" name="ESTADO" value={formData.ESTADO} onChange={handleChange} className="w-full px-3 py-2 border shadow appearance-none" required>
                 <option value="">Selecciona un estado</option>
@@ -192,12 +180,12 @@ export default function ContentForm() {
               </select>
 
               <label htmlFor="MUNICIPIO" className="block mt-2 mb-2 text-sm font-bold">
-                MUNICIPIO:<span className="font-light "> *</span>
+                MUNICIPIO:<span className="font-light text-red-500"> *</span>
               </label>
               <input name="MUNICIPIO" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
 
               <label htmlFor="pdfUpload" className="block mt-4 mb-2 text-sm font-bold">
-                DOCUMENTO (PDF):<span className="font-light "> *</span>
+                DOCUMENTO (PDF):<span className="font-light text-red-500"> *</span>
               </label>
               <input
                 id="pdfUpload"
@@ -210,7 +198,7 @@ export default function ContentForm() {
 
 
               <label htmlFor="AUTORIZACION" className="block mt-2 mb-2 text-sm font-bold">
-                AUTORIZACIÓN:<span className="font-light "> *</span>
+                AUTORIZACIÓN:<span className="font-light text-red-500"> *</span>
               </label>
               <input name="AUTORIZACION" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
             </div>
@@ -250,7 +238,7 @@ export default function ContentForm() {
                       <p className="py-0 my-0 leading-4 text-left"><span className="font-bold">Fecha Creada: </span>{getCurrentDate()}</p>
                       <p className="py-0 my-0 leading-4 text-left whitespace-nowrap "><span className="font-bold">Autorización: </span><span className="text-sm uppercase md:text-base">{formData.AUTORIZACION}</span></p>
                     </div>
-                    <h1 className="pt-5 text-lg font-bold text-center md:text-xl">#PRESERVANDORAICES</h1>
+                    <h1 className="pt-2 text-xs font-bold text-center md:pt-5 md:text-xl">#PRESERVANDORAICES</h1>
                     <div className="flex justify-around gap-5 pt-2">
                       <img className="w-1/6" src="/images/MORADO_LOGO.png" alt="CUSACAN" />
                       <div className="flex flex-col justify-around w-5/6 bg-white">
@@ -258,7 +246,7 @@ export default function ContentForm() {
                         <p style={{ padding: 0 }} className="text-xs text-center">Curativa Salud Cannabis</p>
                       </div>
                     </div>
-                    <p className="text-base text-center font-base">WWW.CURATIVASALUDCANNABIS.ORG</p>
+                    <span className={`${styles.membership}`}>WWW.CURATIVASALUDCANNABIS.ORG</span>
                   </td>
                   <td className={`${styles.socio} flex flex-col items-center justify-around pb-5 pr-8 pt-6 pl-5 w-1/3`}>
                     <div className="flex flex-col items-center">
@@ -279,12 +267,12 @@ export default function ContentForm() {
           <div className="flex flex-col items-center mt-6">
             <div className="flex flex-col justify-center w-full mb-4">
               {!uploadSuccess && (
-                <>{loadingMembership ? <p className="text-sm text-center">Generando membresía...</p> : <button type="submit" className="block px-4 py-2 m-auto text-xs tracking-widest text-center uppercase shadow cursor-pointer whitespace-nowrap font-formaBold w-min md:text-sm bg-black text-white">Generar PDF</button>}</>
+                <>{loadingMembership ? <p className="text-sm text-center">Generando membresía...</p> : <button type="submit" className="block px-4 py-2 m-auto text-xs tracking-widest text-center text-white uppercase bg-black shadow cursor-pointer whitespace-nowrap font-formaBold w-min md:text-sm">Generar PDF</button>}</>
               )}
               {uploadSuccess && (
                 <>
                   <p className="text-center">Membresía creada correctamente!</p>
-                  <a href={downloadURL} target="_blank" rel="noopener noreferrer" className="w-full text-center underline break-all">Descarga tu membresía</a>
+                  <a href={downloadURL} target="_blank" rel="noopener noreferrer" className="w-full font-bold text-center underline break-all">Descarga tu membresía</a>
                 </>
               )}
             </div>
