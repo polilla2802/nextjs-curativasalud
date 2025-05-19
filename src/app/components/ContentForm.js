@@ -224,7 +224,7 @@ export default function ContentForm() {
                             const urlParts = formData.PDF.split("/");
                             const fileName = urlParts[urlParts.length - 1];
                             const baseName = fileName.replace(".pdf", "");
-                            const shortName = baseName.slice(-30) + ".pdf";
+                            const shortName = baseName.slice(-24) + ".pdf";
                             return (
                               <a href={formData.PDF} target="_blank" rel="noopener noreferrer" className="underline ">
                                 {shortName}
