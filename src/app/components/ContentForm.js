@@ -10,18 +10,21 @@ import { sanitizeFilename } from "@/utils/sanitizeFilename";
 export default function ContentForm() {
   const data = {};
   const [formData, setFormData] = useState({
-    NOMBRE: "",
-    ESTADO: "",
-    MUNICIPIO: "",
-    AUTORIZACION: "",
-    PROFPIC: "",
-    PDF: "",
+    profPic: "",
+    name: "",
+    state: "",
+    district: "",
+    membershipId: "",
+    membershipUrl: "",
+    documentUrl: "",
+    authCode: "",
   });
   const [downloadURL, setDownloadURL] = useState("");
   const [profileImageURL, setProfileImageURL] = useState("/images/PROFILE.png");
   const [loadingProfileImage, setLoadingProfileImage] = useState(false);
   const [loadingMembership, setLoadingMembership] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [error, setError] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   const tableRef = useRef();
@@ -55,7 +58,7 @@ export default function ContentForm() {
       setProfileImageURL(urlData.publicUrl);
       setFormData(prev => ({
         ...prev,
-        PROFPIC: urlData.publicUrl,
+        profPic: urlData.publicUrl,
       }));
     }
     setLoadingProfileImage(false);
@@ -74,6 +77,8 @@ export default function ContentForm() {
       });
 
     if (error) {
+      setLoadingMembership(false);
+      setError(true);
       console.error("PDF Upload Error:", error);
       return;
     }
@@ -85,12 +90,12 @@ export default function ContentForm() {
     if (urlData?.publicUrl) {
       setFormData((prev) => ({
         ...prev,
-        PDF: urlData.publicUrl,
+        documentUrl: urlData.publicUrl,
       }));
     }
   };
 
-  const handleSaveAsPNG = async () => {
+  const handleSaveAsPNG = async (formData) => {
     const html2canvas = (await import("html2canvas")).default;
     const element = document.getElementById("tarjeta");
     const randomString = Math.random().toString(36).substring(2, 18);
@@ -113,6 +118,7 @@ export default function ContentForm() {
 
           if (error) {
             setLoadingMembership(false);
+            setError(true);
             throw error;
           }
 
@@ -120,18 +126,76 @@ export default function ContentForm() {
             .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET_NAME)
             .getPublicUrl(`membership/${filename}`);
 
-          if (!urlData?.publicUrl) {
-            setLoadingMembership(false);
-            throw new Error("Failed to retrieve public URL");
+          if (urlData?.publicUrl) {
+            setDownloadURL(urlData.publicUrl);
+            await createMembership(formData, urlData.publicUrl);
           }
-
-          setDownloadURL(urlData.publicUrl);
-          setUploadSuccess(true);
         }
       }, 'image/png', 0.98);
     } catch (error) {
       setLoadingMembership(false);
+      setError(true);
       console.log("Error:", error);
+    }
+  };
+
+  const createMembership = async (formData, membershipUrl) => {
+    try {
+      const membershipData = new FormData();
+      membershipData.append("membershipUrl", membershipUrl);
+      membershipData.append("documentUrl", formData.documentUrl);
+      membershipData.append("authCode", formData.authCode);
+
+      const response = await fetch("/api/memberships", {
+        method: "POST",
+        body: membershipData,
+      });
+
+      if (!response.ok) {
+        setLoadingMembership(false);
+        setError(true);
+        throw new Error("Failed to create membership");
+      }
+
+      const membershipResponse = await response.json();
+      if (membershipResponse) {
+        console.log("Membership created:", membershipResponse);
+        await createUser(formData, membershipResponse);
+      }
+    } catch (error) {
+      setLoadingMembership(false);
+      setError(true);
+      console.log("Error creating membership:", error);
+      return;
+    }
+  };
+
+  const createUser = async (formData, membershipResponse) => {
+    try {
+      const userData = new FormData();
+      userData.append("membershipId", membershipResponse.membership.id);
+      userData.append("name", formData.name);
+      userData.append("state", formData.state);
+      userData.append("district", formData.district);
+
+      const response = await fetch("/api/users", {
+        method: "POST",
+        body: userData,
+      });
+
+      if (!response.ok) {
+        setLoadingMembership(false);
+        setError(true);
+        throw new Error("Failed to create user");
+      }
+
+      const user = await response.json();
+      console.log("User created:", user);
+      setUploadSuccess(true);
+    } catch (error) {
+      setLoadingMembership(false);
+      setError(true);
+      console.log("Error creating user:", error);
     }
   };
 
@@ -144,7 +208,7 @@ export default function ContentForm() {
     setLoadingMembership(true);
     e.preventDefault();
     data.formData = formData;
-    await handleSaveAsPNG();
+    await handleSaveAsPNG(formData);
   };
 
   useEffect(() => {
@@ -164,25 +228,25 @@ export default function ContentForm() {
               </label>
               <input id="profileUpload" type="file" accept="image/*" onChange={handleProfileImageUpload} className="w-full" required />
 
-              <label htmlFor="NOMBRE" className="block mb-2 text-sm font-bold">
+              <label htmlFor="name" className="block mb-2 text-sm font-bold">
                 NOMBRE:<span className="font-light text-red-500"> *</span>
               </label>
-              <input name="NOMBRE" type="text" onChange={handleChange} maxLength={30} className="w-full px-3 py-2 border shadow appearance-none" required />
+              <input name="name" type="text" onChange={handleChange} maxLength={30} className="w-full px-3 py-2 border shadow appearance-none" required />
 
-              <label htmlFor="ESTADO" className="block mt-2 mb-2 text-sm font-bold">
+              <label htmlFor="state" className="block mt-2 mb-2 text-sm font-bold">
                 ESTADO:<span className="font-light text-red-500"> *</span>
               </label>
-              <select id="ESTADO" name="ESTADO" value={formData.ESTADO} onChange={handleChange} className="w-full px-3 py-2 border shadow appearance-none" required>
+              <select id="state" name="state" value={formData.state} onChange={handleChange} className="w-full px-3 py-2 border shadow appearance-none" required>
                 <option value="">Selecciona un estado</option>
                 {estadosMexico.map((estado) => (
                   <option key={estado} value={estado}>{estado}</option>
                 ))}
               </select>
 
-              <label htmlFor="MUNICIPIO" className="block mt-2 mb-2 text-sm font-bold">
+              <label htmlFor="district" className="block mt-2 mb-2 text-sm font-bold">
                 MUNICIPIO:<span className="font-light text-red-500"> *</span>
               </label>
-              <input name="MUNICIPIO" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
+              <input name="district" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
 
               <label htmlFor="pdfUpload" className="block mt-4 mb-2 text-sm font-bold">
                 DOCUMENTO (PDF):<span className="font-light text-red-500"> *</span>
@@ -197,10 +261,11 @@ export default function ContentForm() {
               />
 
 
-              <label htmlFor="AUTORIZACION" className="block mt-2 mb-2 text-sm font-bold">
+
+              <label htmlFor="authCode" className="block mt-2 mb-2 text-sm font-bold">
                 AUTORIZACIÓN:<span className="font-light text-red-500"> *</span>
               </label>
-              <input name="AUTORIZACION" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
+              <input name="authCode" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
             </div>
           </div>
         </div>
@@ -214,19 +279,19 @@ export default function ContentForm() {
                   <td className="flex flex-col justify-around w-2/3 h-full pt-6 pb-5 pl-6">
                     <img src="/images/Logo-CUSACAN-HEADER.png" alt="CUSACAN" className="w-full" />
                     <div>
-                      <p className="py-0 my-0 leading-4 text-left"><span className="font-bold">Nombre: </span><span className="capitalize">{formData.NOMBRE}</span></p>
-                      <p className="py-0 my-0 leading-4 text-left"><span className="font-bold">Estado: </span><span className="capitalize">{formData.ESTADO}</span></p>
-                      <p className="py-0 my-0 leading-4 text-left"><span className="font-bold">Municipio: </span><span className="capitalize">{formData.MUNICIPIO}</span></p>
+                      <p className="py-0 my-0 leading-4 text-left"><span className="font-bold">Nombre: </span><span className="capitalize">{formData.name}</span></p>
+                      <p className="py-0 my-0 leading-4 text-left"><span className="font-bold">Estado: </span><span className="capitalize">{formData.state}</span></p>
+                      <p className="py-0 my-0 leading-4 text-left"><span className="font-bold">Municipio: </span><span className="capitalize">{formData.district}</span></p>
                       <p className="py-0 my-0 leading-4 text-left break-all">
                         <span className="font-bold">Documento: </span>
-                        {formData.PDF ? (
+                        {formData.documentUrl ? (
                           (() => {
-                            const urlParts = formData.PDF.split("/");
+                            const urlParts = formData.documentUrl.split("/");
                             const fileName = urlParts[urlParts.length - 1];
                             const baseName = fileName.replace(".pdf", "");
                             const shortName = baseName.slice(-24) + ".pdf";
                             return (
-                              <a href={formData.PDF} target="_blank" rel="noopener noreferrer" className="underline ">
+                              <a href={formData.documentUrl} target="_blank" rel="noopener noreferrer" className="underline ">
                                 {shortName}
                               </a>
                             );
@@ -236,7 +301,7 @@ export default function ContentForm() {
                         )}
                       </p>
                       <p className="py-0 my-0 leading-4 text-left"><span className="font-bold">Fecha Creada: </span>{getCurrentDate()}</p>
-                      <p className="py-0 my-0 leading-4 text-left whitespace-nowrap "><span className="font-bold">Autorización: </span><span className="text-sm uppercase md:text-base">{formData.AUTORIZACION}</span></p>
+                      <p className="py-0 my-0 leading-4 text-left whitespace-nowrap "><span className="font-bold">Autorización: </span><span className="text-sm uppercase md:text-base">{formData.authCode}</span></p>
                     </div>
                     <h1 className="pt-2 text-xs font-bold text-center md:pt-5 md:text-xl">#PRESERVANDORAICES</h1>
                     <div className="flex justify-around gap-5 pt-2">
@@ -266,17 +331,42 @@ export default function ContentForm() {
           <p className="pt-5 text-center">Esta representación es lo mas cercano posible a la tarjeta final</p>
           <div className="flex flex-col items-center mt-6">
             <div className="flex flex-col justify-center w-full mb-4">
-              {!uploadSuccess && (
-                <>{loadingMembership ? <p className="text-sm text-center">Generando membresía...</p> : <button type="submit" className="block px-4 py-2 m-auto text-xs tracking-widest text-center text-white uppercase bg-black shadow cursor-pointer whitespace-nowrap font-formaBold w-min md:text-sm">Generar PDF</button>}</>
+              {error && (
+                <p className="mb-2 text-sm text-center ">
+                  Hubo un error creando la membresia, intente de nuevo
+                </p>
               )}
+              {!uploadSuccess && (
+                <>
+                  {loadingMembership ? (
+                    <p className="text-sm text-center">Generando membresía...</p>
+                  ) : (
+                    <button
+                      type="submit"
+                      className="block px-4 py-2 m-auto text-xs tracking-widest text-center text-white uppercase bg-black shadow cursor-pointer whitespace-nowrap font-formaBold w-min md:text-sm"
+                    >
+                      Generar PDF
+                    </button>
+                  )}
+                </>
+              )}
+
               {uploadSuccess && (
                 <>
-                  <p className="text-center">Membresía creada correctamente!</p>
-                  <a href={downloadURL} target="_blank" rel="noopener noreferrer" className="w-full font-bold text-center underline break-all">Descarga tu membresía</a>
+                  <p className="text-center">¡Membresía creada correctamente!</p>
+                  <a
+                    href={downloadURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full font-bold text-center underline break-all"
+                  >
+                    Descarga tu membresía
+                  </a>
                 </>
               )}
             </div>
           </div>
+
         </div>
       </div>
     </form>
