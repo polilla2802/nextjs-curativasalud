@@ -328,7 +328,7 @@ export default function ContentForm() {
               </tbody>
             </table>
           </div>
-          <p className="pt-5 text-center">Esta representación es lo mas cercano posible a la tarjeta final</p>
+          <p className="px-5 pt-5 text-center">Esta representación es lo mas cercano posible a la tarjeta final</p>
           <div className="flex flex-col items-center mt-6">
             <div className="flex flex-col justify-center w-full mb-4">
               {error && (
