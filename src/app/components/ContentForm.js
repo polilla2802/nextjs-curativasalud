@@ -167,7 +167,7 @@ export default function ContentForm() {
               <label htmlFor="NOMBRE" className="block mb-2 text-sm font-bold">
                 NOMBRE:<span className="font-light text-red-500"> *</span>
               </label>
-              <input name="NOMBRE" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
+              <input name="NOMBRE" type="text" onChange={handleChange} maxLength={30} className="w-full px-3 py-2 border shadow appearance-none" required />
 
               <label htmlFor="ESTADO" className="block mt-2 mb-2 text-sm font-bold">
                 ESTADO:<span className="font-light text-red-500"> *</span>
@@ -241,7 +241,7 @@ export default function ContentForm() {
                     <h1 className="pt-2 text-xs font-bold text-center md:pt-5 md:text-xl">#PRESERVANDORAICES</h1>
                     <div className="flex justify-around gap-5 pt-2">
                       <img className="w-1/6" src="/images/MORADO_LOGO.png" alt="CUSACAN" />
-                      <div className="flex flex-col justify-around w-5/6 bg-white">
+                      <div className="flex flex-col w-5/6 bg-white">
                         <img className="w-full" src="/images/BARCODE.jpg" />
                         <p style={{ padding: 0 }} className="text-xs text-center">Curativa Salud Cannabis</p>
                       </div>
