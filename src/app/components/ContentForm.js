@@ -209,6 +209,7 @@ export default function ContentForm() {
       const user = await response.json();
       console.log("User created:", user);
       setUploadSuccess(true);
+      setError(false);
     } catch (error) {
       setLoadingMembership(false);
       setError(true);
