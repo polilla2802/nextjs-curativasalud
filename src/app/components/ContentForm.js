@@ -283,7 +283,7 @@ export default function ContentForm() {
               <label htmlFor="authCode" className="block mt-2 mb-2 text-sm font-bold">
                 AUTORIZACIÓN:<span className="font-light text-red-500"> *</span>
               </label>
-              <input name="authCode" type="text" onChange={handleChange} maxLength={18} className="w-full px-3 py-2 border shadow appearance-none" required />
+              <input name="authCode" type="text" onChange={handleChange} maxLength={30} className="w-full px-3 py-2 border shadow appearance-none" required />
             </div>
           </div>
         </div>
