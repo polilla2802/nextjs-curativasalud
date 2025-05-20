@@ -22,7 +22,7 @@ export default function ContentForm() {
   });
   const [downloadURL, setDownloadURL] = useState("");
   const [socioCode, setSocioCode] = useState("");
-  const [profileImageURL, setProfileImageURL] = useState("/images/PROFILE.png");
+  const [profileImageURL, setProfileImageURL] = useState("/images/prof_pic.png");
   const [loadingProfileImage, setLoadingProfileImage] = useState(false);
   const [loadingMembership, setLoadingMembership] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -278,9 +278,6 @@ export default function ContentForm() {
                 className="w-full"
                 required
               />
-
-
-
               <label htmlFor="authCode" className="block mt-2 mb-2 text-sm font-bold">
                 AUTORIZACIÓN:<span className="font-light text-red-500"> *</span>
               </label>
@@ -291,12 +288,12 @@ export default function ContentForm() {
 
         <div className="w-full">
           <div className={`${styles.membership}`} ref={tableRef} id="tarjeta">
-            <img className="w-full" src="/images/TARJETA_FINAL_BACK.png" />
+            <img className="w-full" src="/images/card_final_back.png" />
             <table className="bg-custom-card rounded-2xl">
               <tbody>
                 <tr className="flex w-full h-full">
                   <td className="flex flex-col justify-around w-2/3 h-full pt-6 pb-5 pl-6">
-                    <img src="/images/Logo-CUSACAN-HEADER.png" alt="CUSACAN" className="w-full" />
+                    <img src="/images/logo-cusacan.png" alt="CUSACAN" className="w-full" />
                     <div>
                       <p className="py-0 my-0 leading-4 text-left"><span className="font-bold">Nombre: </span><span className="capitalize">{formData.name}</span></p>
                       <p className="py-0 my-0 leading-4 text-left"><span className="font-bold">Estado: </span><span className="capitalize">{formData.state}</span></p>
@@ -324,7 +321,7 @@ export default function ContentForm() {
                     </div>
                     <h1 className="pt-2 text-xs font-bold text-center md:pt-5 md:text-xl">#PRESERVANDORAICES</h1>
                     <div className="flex justify-around gap-5 pt-2">
-                      <img className="w-1/6" src="/images/MORADO_LOGO.png" alt="CUSACAN" />
+                      <img className="w-1/6" src="/images/curativa-morado.png" alt="CUSACAN" />
                       <div className="flex flex-col justify-end w-5/6 bg-white">
                         {formData.socioCode ? (
                           <img
@@ -348,7 +345,7 @@ export default function ContentForm() {
                       )}
                       <p className="pt-5 font-bold text-left whitespace-nowrap">ASOCIADO</p>
                     </div>
-                    <img className="w-2/3" src="/images/QR.jpg" alt="QR" />
+                    <img className="w-2/3" src="/images/qr_code.jpg" alt="QR" />
                   </td>
                 </tr>
               </tbody>
