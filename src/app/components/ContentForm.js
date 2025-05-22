@@ -291,7 +291,8 @@ export default function ContentForm() {
             <img className="w-full" src="/images/card_final_back.png" />
             <table className="bg-custom-card rounded-2xl">
               <tbody>
-                <tr className="flex w-full h-full">
+                <tr className="relative flex w-full h-full">
+                  <h1 className="absolute top-0 w-full text-6xl font-bold text-center uppercase rotate-45 opacity-30 md:text-8xl">Esto es una prueba</h1>
                   <td className="flex flex-col justify-around w-2/3 h-full pt-6 pb-5 pl-6">
                     <img src="/images/logo-cusacan.png" alt="CUSACAN" className="w-full" />
                     <div>
