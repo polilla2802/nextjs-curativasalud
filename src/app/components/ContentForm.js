@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import estadosMexico from "@/utils/estados";
 import { getCurrentDate } from "@/utils/getCurrentDate";
 import { sanitizeFilename } from "@/utils/sanitizeFilename";
+import { supabase } from "@/lib/supabase";
 
 export default function ContentForm() {
   const data = {};
@@ -42,14 +43,27 @@ export default function ContentForm() {
   };
 
   const uploadFile = async (file, folder, filename) => {
-    const body = new FormData();
-    body.append('file', file);
-    body.append('folder', folder);
-    body.append('filename', filename);
-
-    const response = await fetch('/api/upload', { method: 'POST', body });
+    // Step 1: get a signed upload URL from the server (tiny payload, no file)
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folder, filename, contentType: file.type }),
+    });
     const result = await response.json();
-    if (!response.ok) throw new Error(result.error || 'Upload failed');
+    if (!response.ok) throw new Error(result.error || 'Failed to get upload URL');
+
+    // Step 2: upload directly from the browser to Supabase (bypasses Vercel size limit)
+    const bucket = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET_NAME;
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .uploadToSignedUrl(result.path, result.token, file, {
+        contentType: file.type,
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (uploadError) throw new Error(uploadError.message);
+
     return result.publicUrl;
   };
 
