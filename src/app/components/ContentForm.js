@@ -2,7 +2,6 @@
 "use client";
 import styles from "./ContentForm.module.css";
 import { useState, useRef, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 import estadosMexico from "@/utils/estados";
 import { getCurrentDate } from "@/utils/getCurrentDate";
 import { sanitizeFilename } from "@/utils/sanitizeFilename";
@@ -42,6 +41,18 @@ export default function ContentForm() {
     });
   };
 
+  const uploadFile = async (file, folder, filename) => {
+    const body = new FormData();
+    body.append('file', file);
+    body.append('folder', folder);
+    body.append('filename', filename);
+
+    const response = await fetch('/api/upload', { method: 'POST', body });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Upload failed');
+    return result.publicUrl;
+  };
+
   const handleProfileImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -49,31 +60,15 @@ export default function ContentForm() {
     const sanitizedFileName = sanitizeFilename(file.name);
     const filename = `doc_${Date.now()}_${sanitizedFileName}`;
 
-    const { data, error } = await supabase.storage
-      .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET_NAME)
-      .upload(`profiles/${filename}`, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
-
-    if (error) {
+    try {
+      const publicUrl = await uploadFile(file, 'profiles', filename);
+      setProfileImageURL(publicUrl);
+      setFormData(prev => ({ ...prev, profPic: publicUrl }));
+    } catch (error) {
       console.error('Image upload error:', error);
+    } finally {
       setLoadingProfileImage(false);
-      return;
     }
-
-    const { data: urlData } = supabase.storage
-      .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET_NAME)
-      .getPublicUrl(`profiles/${filename}`);
-
-    if (urlData?.publicUrl) {
-      setProfileImageURL(urlData.publicUrl);
-      setFormData(prev => ({
-        ...prev,
-        profPic: urlData.publicUrl,
-      }));
-    }
-    setLoadingProfileImage(false);
   };
 
   const handlePDFUpload = async (e) => {
@@ -81,29 +76,13 @@ export default function ContentForm() {
     if (!file) return;
     const sanitizedFileName = sanitizeFilename(file.name);
     const filename = `doc_${Date.now()}_${sanitizedFileName}`;
-    const { data, error } = await supabase.storage
-      .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET_NAME)
-      .upload(`documents/${filename}`, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
 
-    if (error) {
-      setLoadingMembership(false);
+    try {
+      const publicUrl = await uploadFile(file, 'documents', filename);
+      setFormData((prev) => ({ ...prev, documentUrl: publicUrl }));
+    } catch (error) {
       setError(true);
       console.error("PDF Upload Error:", error);
-      return;
-    }
-
-    const { data: urlData } = supabase.storage
-      .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET_NAME)
-      .getPublicUrl(`documents/${filename}`);
-
-    if (urlData?.publicUrl) {
-      setFormData((prev) => ({
-        ...prev,
-        documentUrl: urlData.publicUrl,
-      }));
     }
   };
 
@@ -119,28 +98,14 @@ export default function ContentForm() {
 
       canvas.toBlob(async (blob) => {
         if (blob) {
-          const { data, error } = await supabase.storage
-            .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET_NAME)
-            .upload(`membership/${filename}`, blob, {
-              quality: 1,
-              scale: 4,
-              cacheControl: '3600',
-              upsert: false,
-            });
-
-          if (error) {
+          try {
+            const publicUrl = await uploadFile(blob, 'membership', filename);
+            setDownloadURL(publicUrl);
+            await createMembership(formData, publicUrl);
+          } catch (error) {
             setLoadingMembership(false);
             setError(true);
             throw error;
-          }
-
-          const { data: urlData } = supabase.storage
-            .from(process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET_NAME)
-            .getPublicUrl(`membership/${filename}`);
-
-          if (urlData?.publicUrl) {
-            setDownloadURL(urlData.publicUrl);
-            await createMembership(formData, urlData.publicUrl);
           }
         }
       }, 'image/png', 0.98);
